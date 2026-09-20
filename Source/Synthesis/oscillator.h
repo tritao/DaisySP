@@ -103,6 +103,8 @@ class Oscillator
     /** Processes the waveform to be generated, returning one sample. This should be called once per sample period.
     */
     float Process();
+    /** Processes one sample with a non-accumulating normalized phase offset. */
+    float Process(float phase_offset);
 
 
     /** Adds a value 0.0-1.0 (equivalent to 0.0-TWO_PI) to the current phase. Useful for PM and "FM" synthesis.

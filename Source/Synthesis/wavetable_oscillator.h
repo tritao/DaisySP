@@ -70,6 +70,8 @@ class WavetableOscillator
 
     /** Processes one sample with linear interpolation and band selection. */
     float Process();
+    /** Processes one sample with a non-accumulating normalized phase offset. */
+    float Process(float phase_offset);
 
   private:
     float              sample_rate_;

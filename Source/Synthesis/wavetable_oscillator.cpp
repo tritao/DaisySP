@@ -15,6 +15,11 @@ using namespace daisysp;
 
 float WavetableOscillator::Process()
 {
+    return Process(0.0f);
+}
+
+float WavetableOscillator::Process(float phase_offset)
+{
     if(!tables_ || table_count_ == 0)
         return 0.0f;
 
@@ -30,7 +35,8 @@ float WavetableOscillator::Process()
     const auto& table = tables_[table_index];
     if(!table.samples || table.sample_count == 0)
         return 0.0f;
-    const auto wrapped_phase = phase_ - std::floor(phase_);
+    const auto phase = phase_ + phase_offset;
+    const auto wrapped_phase = phase - std::floor(phase);
     const auto position       = wrapped_phase * static_cast<float>(table.sample_count);
     const auto first          = static_cast<uint32_t>(position);
     const auto second         = first + 1 == table.sample_count ? 0 : first + 1;
