@@ -16,6 +16,8 @@ void Adsr::Init(float sample_rate, int blockSize)
     x_            = 0.0f;
     gate_         = false;
     mode_         = ADSR_SEG_IDLE;
+    prev_segment_ = ADSR_SEG_IDLE;
+    trigger_      = false;
 
     SetTime(ADSR_SEG_ATTACK, 0.1f);
     SetTime(ADSR_SEG_DECAY, 0.1f);
