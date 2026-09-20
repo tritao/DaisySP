@@ -74,6 +74,7 @@
 #include "Synthesis/harmonic_osc.h"
 #include "Synthesis/oscillator.h"
 #include "Synthesis/oscillatorbank.h"
+#include "Synthesis/wavetable_oscillator.h"
 #include "Synthesis/variablesawosc.h"
 #include "Synthesis/variableshapeosc.h"
 #include "Synthesis/vosim.h"
