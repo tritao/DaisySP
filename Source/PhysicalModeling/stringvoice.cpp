@@ -1,3 +1,4 @@
+#include "Utility/random.h"
 #include "stringvoice.h"
 #include <algorithm>
 #include "dsp.h"
@@ -7,6 +8,8 @@ using namespace daisysp;
 void StringVoice::Init(float sample_rate)
 {
     sample_rate_ = sample_rate;
+    trig_ = false;
+    aux_ = 0.0f;
 
     excitation_filter_.Init(sample_rate);
     string_.Init(sample_rate_);
@@ -107,7 +110,7 @@ float StringVoice::Process(bool trigger)
     }
     else if(remaining_noise_samples_)
     {
-        temp = 2.0f * rand() * kRandFrac - 1.0f;
+        temp = 2.0f * RandomInt() * kRandFrac - 1.0f;
         remaining_noise_samples_--;
         remaining_noise_samples_ = DSY_MAX(remaining_noise_samples_, 0.f);
     }

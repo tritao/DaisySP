@@ -19,11 +19,11 @@ https://opensource.org/licenses/MIT.
 
 namespace daisysp
 {
-/**  
+/**
        @brief Naive snare drum model (two modulated oscillators + filtered noise).
        @author Ben Sergentanis
        @date Jan 2021
-       Uses a few magic numbers taken from the 909 schematics: \n 
+       Uses a few magic numbers taken from the 909 schematics: \n
        - Ratio between the two modes of the drum set to 1.47. \n
        - Funky coupling between the two modes. \n
        - Noise coloration filters and envelope shapes for the snare. \n \n
@@ -86,6 +86,7 @@ class SyntheticSnareDrum
     float sample_rate_;
 
     bool  trig_;
+    bool  even_; // Instance-local envelope clock; reset by Init().
     bool  sustain_;
     float accent_, f0_, fm_amount_, decay_, snappy_;
 

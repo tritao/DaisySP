@@ -13,6 +13,9 @@ void Fm2::Init(float samplerate)
     lratio_ = 2.f;
     SetFrequency(lfreq_);
     SetRatio(lratio_);
+    // Initialize the oscillators as well as their change-detection cache.
+    car_.SetFreq(lfreq_);
+    mod_.SetFreq(lfreq_ * lratio_);
 
     car_.SetAmp(1.f);
     mod_.SetAmp(1.f);

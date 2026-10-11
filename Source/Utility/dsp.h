@@ -11,6 +11,7 @@ https://opensource.org/licenses/MIT.
 #pragma once
 #ifndef DSY_CORE_DSP
 #define DSY_CORE_DSP
+#include "random.h"
 #include <cassert>
 #include <cstdint>
 #include <random>
@@ -28,7 +29,7 @@ https://opensource.org/licenses/MIT.
 
 namespace daisysp
 {
-//Avoids division for random floats. e.g. rand() * kRandFrac
+//Avoids division for random floats. e.g. RandomInt() * kRandFrac
 static constexpr float kRandFrac = 1.f / (float)RAND_MAX;
 
 //Convert from semitones to other units. e.g. 2 ^ (kOneTwelfth * x)

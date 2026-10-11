@@ -63,6 +63,7 @@ granularplayer
 
 SYNTHESIS_MOD_DIR = Synthesis
 SYNTHESIS_MODULES = \
+wavetable_oscillator \
 fm2 \
 formantosc \
 oscillator \

@@ -18,11 +18,11 @@ https://opensource.org/licenses/MIT.
 /** @file harmonic_osc.h */
 namespace daisysp
 {
-/**  
-       @brief Harmonic Oscillator Module based on Chebyshev polynomials. 
+/**
+       @brief Harmonic Oscillator Module based on Chebyshev polynomials.
        @author Ben Sergentanis
-       @date Dec 2020 
-       Harmonic Oscillator Module based on Chebyshev polynomials \n 
+       @date Dec 2020
+       Harmonic Oscillator Module based on Chebyshev polynomials \n
        Works well for a small number of harmonics. For the higher order harmonics. \n
        We need to reinitialize the recurrence by computing two high harmonics. \n \n
        Ported from pichenettes/eurorack/plaits/dsp/oscillator/harmonic_oscillator.h \n
@@ -43,6 +43,10 @@ class HarmonicOscillator
     {
         sample_rate_ = sample_rate;
         phase_       = 0.0f;
+        // The setters compare these cached values before assigning them.
+        frequency_ = 0.0f;
+        first_harmonic_index_ = 1;
+        recalc_ = false;
 
         for(int i = 0; i < num_harmonics; ++i)
         {
@@ -107,7 +111,7 @@ class HarmonicOscillator
         return sum;
     }
 
-    /** Set the main frequency 
+    /** Set the main frequency
         \param freq Freq to be set in Hz.
     */
     void SetFreq(float freq)
@@ -130,8 +134,8 @@ class HarmonicOscillator
         first_harmonic_index_ = idx;
     }
 
-    /** Set the amplitudes of each harmonic of the root. 
-        \param amplitudes Amplitudes to set. Sum of all amplitudes must be < 1. The array referenced must be at least as large as num_harmonics. 
+    /** Set the amplitudes of each harmonic of the root.
+        \param amplitudes Amplitudes to set. Sum of all amplitudes must be < 1. The array referenced must be at least as large as num_harmonics.
     */
     void SetAmplitudes(const float* amplitudes)
     {

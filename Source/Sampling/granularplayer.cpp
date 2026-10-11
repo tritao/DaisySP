@@ -24,14 +24,7 @@ void GranularPlayer::Init(float* sample, int size, float sample_rate)
 
 uint32_t GranularPlayer::WrapIdx(uint32_t idx, uint32_t sz)
 {
-    /*wraps idx to sz*/
-    if(idx > sz)
-    {
-        idx = idx - sz;
-        return idx;
-    }
-
-    return idx;
+    return sz ? idx % sz : 0;
 }
 
 float GranularPlayer::CentsToRatio(float cents)
@@ -50,7 +43,7 @@ float GranularPlayer::MsToSamps(float ms, float samplerate)
 float GranularPlayer::NegativeInvert(Phasor* phs, float frequency)
 {
     /*inverts the phase of the phasor if the frequency is negative, mimicking pure data's phasor~ object*/
-    return (frequency > 0) ? phs->Process() : ((phs->Process() * -1) + 1);
+    return (frequency >= 0) ? phs->Process() : ((phs->Process() * -1) + 1);
 }
 
 float GranularPlayer::Process(float speed,

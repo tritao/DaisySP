@@ -1,3 +1,4 @@
+#include "Utility/random.h"
 #include "dsp.h"
 #include "synthsnaredrum.h"
 #include <math.h>
@@ -25,6 +26,7 @@ void SyntheticSnareDrum::Init(float sample_rate)
     SetSnappy(.7f);
 
     trig_ = false;
+    even_ = true;
 
     drum_lp_.Init(sample_rate_);
     snare_hp_.Init(sample_rate_);
@@ -37,7 +39,6 @@ inline float SyntheticSnareDrum::DistortedSine(float phase)
     return 2.0f * triangle / (1.0f + fabsf(triangle));
 }
 
-bool even = true;
 
 float SyntheticSnareDrum::Process(bool trigger)
 {
@@ -81,7 +82,7 @@ float SyntheticSnareDrum::Process(bool trigger)
             = static_cast<int>((0.04f + decay_ * 0.03f) * sample_rate_);
     }
 
-    even = !even;
+    even_ = !even_;
     if(sustain_)
     {
         sustain_gain_ = snare_amplitude_ = accent_ * decay_;
@@ -95,7 +96,7 @@ float SyntheticSnareDrum::Process(bool trigger)
         // The envelope for the snare has a "hold" stage which lasts between
         // 40 and 70 ms
         drum_amplitude_
-            *= (drum_amplitude_ > 0.03f || even) ? drum_decay : 1.0f;
+            *= (drum_amplitude_ > 0.03f || even_) ? drum_decay : 1.0f;
         if(hold_counter_)
         {
             --hold_counter_;
@@ -153,7 +154,7 @@ float SyntheticSnareDrum::Process(bool trigger)
     drum_lp_.Process(drum);
     drum = drum_lp_.Low();
 
-    float noise = rand() * kRandFrac;
+    float noise = RandomInt() * kRandFrac;
     snare_lp_.Process(noise);
     float snare = snare_lp_.Low();
     snare_hp_.Process(snare);

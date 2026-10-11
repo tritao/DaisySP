@@ -1,3 +1,4 @@
+#include "Utility/random.h"
 #include "drip.h"
 #include <math.h>
 #include <cstdlib>
@@ -18,14 +19,12 @@ using namespace daisysp;
 
 int Drip::my_random(int max)
 {
-    return (rand() % (max + 1));
+    return (RandomInt() % (max + 1));
 }
 
 float Drip::noise_tick()
 {
-    float temp;
-    temp = 1.0f * rand() - 1073741823.5f;
-    return temp * (1.0f / 1073741823.0f);
+    return 2.0f * static_cast<float>(RandomInt()) / static_cast<float>(RAND_MAX) - 1.0f;
 }
 
 void Drip::Init(float sample_rate, float dettack)
@@ -44,7 +43,7 @@ void Drip::Init(float sample_rate, float dettack)
     snd_level_   = 0.0;
     float tpidsr = 2.0 * PI_F / sample_rate_;
 
-    kloop_     = (sample_rate_ * dettack_);
+    kloop_     = fmaxf(1.0f, roundf(sample_rate_ * dettack_));
     outputs00_ = 0.0f;
     outputs01_ = 0.0f;
     outputs10_ = 0.0f;
@@ -124,7 +123,7 @@ float Drip::Process(bool trig)
         res_freq2_ = freq2_;
         coeffs20_  = -WUTR_RESON * 2.0f * cosf(res_freq2_ * tpidsr);
     }
-    if((--kloop_) == 0.0f)
+    if((--kloop_) <= 0.0f)
     {
         shake_energy_ = 0.0f;
     }
@@ -193,12 +192,12 @@ float Drip::Process(bool trig)
     inputs1 -= outputs10_ * coeffs10_;
     inputs1 -= outputs11_ * coeffs11_;
     outputs11_ = outputs10_;
-    outputs10_ = inputs1_;
+    outputs10_ = inputs1;
     data += gains1_ * outputs10_;
     inputs2 -= outputs20_ * coeffs20_;
     inputs2 -= outputs21_ * coeffs21_;
     outputs21_ = outputs20_;
-    outputs20_ = inputs2_;
+    outputs20_ = inputs2;
     data += gains2_ * outputs20_;
 
     finalZ2_ = finalZ1_;

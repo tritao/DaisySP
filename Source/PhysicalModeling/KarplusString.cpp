@@ -1,3 +1,4 @@
+#include "Utility/random.h"
 #include <cmath>
 #include "dsp.h"
 #include "KarplusString.h"
@@ -37,7 +38,8 @@ void String::Reset()
     dispersion_noise_ = 0.0f;
     curved_bridge_    = 0.0f;
     out_sample_[0] = out_sample_[1] = 0.0f;
-    src_phase_                      = 0.0f;
+    // Consume the initial excitation even when the low-pitch resampler skips frames.
+    src_phase_                      = 1.0f;
 }
 
 float String::Process(const float in)
@@ -63,7 +65,8 @@ void String::SetFreq(float freq)
 
 void String::SetNonLinearity(float non_linearity_amount)
 {
-    non_linearity_amount_ = fclamp(non_linearity_amount, 0.f, 1.f);
+    // Negative values select the curved-bridge branch documented in the header.
+    non_linearity_amount_ = fclamp(non_linearity_amount, -1.f, 1.f);
 }
 
 void String::SetBrightness(float brightness)
@@ -81,25 +84,32 @@ float String::ProcessInternal(const float in)
 {
     float brightness = brightness_;
 
+    const float dc_gain = 1.f - 10.f / sample_rate_;
+    const float dc_ratio = (1.f - dc_gain) / (1.f + dc_gain);
+    const float delay_limit = kDelayLineSize - 4.0f;
+    // Reserve room for the DC blocker's phase lead even at infinite sustain.
+    const float phase_reserve = atanf(dc_ratio / tanf(PI_F / delay_limit)) / TWOPI_F;
     float delay = 1.0f / frequency_;
-    delay       = fclamp(delay, 4.f, kDelayLineSize - 4.0f);
+    delay = fclamp(delay, 4.f, delay_limit / (1.f + phase_reserve));
 
-    // If there is not enough delay time in the delay line, we play at the
-    // lowest possible note and we upsample on the fly with a shitty linear
-    // interpolator. We don't care because it's a corner case (frequency_ < 11.7Hz)
+    // Below the delay-line range, advance the model at a reduced internal rate
+    // and interpolate its output back to the engine rate.
     float src_ratio = delay * frequency_;
     if(src_ratio >= 0.9999f)
     {
-        // When we are above 11.7 Hz, we make sure that the linear interpolator
-        // does not get in the way.
+        // Within the delay-line range, process every sample without resampling.
         src_phase_ = 1.0f;
         src_ratio  = 1.0f;
     }
 
+    // The filter runs only when the delay loop advances. Below the delay-line
+    // range its normalized frequency must use that internal rate.
+    const float loop_frequency = 1.0f / delay;
+
     float damping_cutoff
         = fmin(12.0f + damping_ * damping_ * 60.0f + brightness * 24.0f, 84.0f);
     float damping_f
-        = fmin(frequency_ * powf(2.f, damping_cutoff * kOneTwelfth), 0.499f);
+        = fmin(loop_frequency * powf(2.f, damping_cutoff * kOneTwelfth), 0.499f);
 
     // Crossfade to infinite decay.
     if(damping_ >= 0.95f)
@@ -113,8 +123,14 @@ float String::ProcessInternal(const float in)
     float temp_f = damping_f;
     iir_damping_filter_.SetFrequency(temp_f);
 
-    float ratio                = powf(2.f, damping_cutoff * kOneTwelfth);
-    float damping_compensation = 1.f - 2.f * atanf(1.f / ratio) / (TWOPI_F);
+    // Compensate the actual one-pole phase lag and DC blocker's phase lead.
+    // The upstream port used twice the low-pass lag, making the string sharp.
+    const float tangent = tanf(PI_F * loop_frequency);
+    const float filter_g = tanf(PI_F * fmin(damping_f, 0.497f));
+    const float lowpass_lag = atanf(tangent / filter_g);
+    const float dc_lead = atanf(dc_ratio / tangent);
+    const float damping_compensation = 1.f - (lowpass_lag - dc_lead) / TWOPI_F;
+
 
     float stretch_point
         = non_linearity_amount_ * (2.0f - non_linearity_amount_) * 0.225f;
@@ -143,7 +159,7 @@ float String::ProcessInternal(const float in)
 
         if(non_linearity == NON_LINEARITY_DISPERSION)
         {
-            float noise = rand() * kRandFrac - 0.5f;
+            float noise = RandomInt() * kRandFrac - 0.5f;
             fonepole(dispersion_noise_, noise, noise_filter);
             delay *= 1.0f + dispersion_noise_ * noise_amount;
         }
@@ -151,6 +167,9 @@ float String::ProcessInternal(const float in)
         {
             delay *= 1.0f - curved_bridge_ * bridge_curving;
         }
+
+        // Nonlinear bridge/noise offsets must not wrap around the circular delay.
+        delay = fclamp(delay, 4.f, delay_limit);
 
         if(non_linearity == NON_LINEARITY_DISPERSION)
         {

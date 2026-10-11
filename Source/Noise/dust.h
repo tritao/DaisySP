@@ -1,3 +1,4 @@
+#include "Utility/random.h"
 /*
 Copyright (c) 2020 Electrosmith, Corp, Emilie Gillet
 
@@ -39,7 +40,7 @@ class Dust
     float Process()
     {
         float inv_density = 1.0f / density_;
-        float u           = rand() * kRandFrac;
+        float u           = RandomInt() * kRandFrac;
         if(u < density_)
         {
             return u * inv_density;

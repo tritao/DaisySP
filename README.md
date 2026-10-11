@@ -97,3 +97,34 @@ DaisySP uses the MIT license.
 It can be used in both closed source and commercial projects, and does not provide a warranty of any kind.
 
 For the full license, read the [LICENSE](https://github.com/electro-smith/DaisySP/blob/master/LICENSE) file in the root directory.
+
+## NativeKit fork
+
+The `nativekit` branch of https://github.com/tritao/DaisySP preserves the existing
+wavetable oscillator and SVF/phase-offset extensions. Generic corrections formerly
+copied by NativeKit now live in their original DaisySP modules: deterministic
+initialization and reinitialization, independent synthetic-snare clocks, FM2
+default frequency caches, granular and phasor wrapping, Drip filter initialization
+and portable random scaling, Karplus excitation/tuning/curved-bridge behavior,
+and stable linear analog-snare resonators with corrected Q and trigger filtering.
+WhiteNoise preserves its wrapping sequence using defined unsigned arithmetic.
+
+`Utility/random.h` exposes `RandomInt()`. The default build uses libc `rand()`.
+Host builds may enable `DAISYSP_SCOPED_RANDOM` consistently in the library and all
+consumers. `ScopedRandomSource(callback, context)` then installs a non-owning,
+thread-local source and restores the previous binding on scope exit. Callbacks
+return values in `[0, RAND_MAX]`; real-time hosts must provide nonblocking,
+allocation-free callbacks and keep their context alive throughout the scope.
+The opt-in prevents thread-local storage requirements in ordinary embedded builds.
+
+Host regression tests exercise all 24 NativeKit source models across poisoned
+storage, reinitialization and sample rates, independent snare clocks, nested and
+thread-local random bindings, cross-translation-unit calls and WhiteNoise wrapping.
+Run them with:
+
+```sh
+cmake -S . -B build-host -DCMAKE_BUILD_TYPE=Debug \
+  -DDAISYSP_SCOPED_RANDOM=ON -DDAISYSP_BUILD_TESTS=ON
+cmake --build build-host
+ctest --test-dir build-host --output-on-failure
+```

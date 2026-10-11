@@ -1,3 +1,4 @@
+#include "Utility/random.h"
 #include "synthbassdrum.h"
 #include <math.h>
 #include <stdlib.h>
@@ -32,7 +33,7 @@ void SyntheticBassDrumAttackNoise::Init()
 
 float SyntheticBassDrumAttackNoise::Process()
 {
-    float sample = rand() * kRandFrac;
+    float sample = RandomInt() * kRandFrac;
     fonepole(lp_, sample, 0.05f);
     fonepole(hp_, lp_, 0.005f);
     return lp_ - hp_;
@@ -50,6 +51,8 @@ void SyntheticBassDrum::Init(float sample_rate)
     fm_                   = 0.0f;
     fm_lp_                = 0.0f;
     body_env_lp_          = 0.0f;
+    transient_env_        = 0.0f;
+    transient_env_lp_     = 0.0f;
     body_env_             = 0.0f;
     body_env_pulse_width_ = 0;
     fm_pulse_width_       = 0;
@@ -121,7 +124,7 @@ float SyntheticBassDrum::Process(bool trigger)
 
     sustain_gain_ = accent_ * decay_;
 
-    fonepole(phase_noise_, rand() * kRandFrac - 0.5f, 0.002f);
+    fonepole(phase_noise_, RandomInt() * kRandFrac - 0.5f, 0.002f);
 
     float mix = 0.0f;
 

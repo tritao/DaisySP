@@ -1,3 +1,4 @@
+#include "Utility/random.h"
 /*
 Copyright (c) 2020 Electrosmith, Corp, Paul Batchelor
 
@@ -34,7 +35,7 @@ class Maytrig
     */
     inline float Process(float prob)
     {
-        return ((float)rand() / (float)RAND_MAX) <= prob ? true : false;
+        return ((float)RandomInt() / (float)RAND_MAX) <= prob ? true : false;
     }
 
   private:

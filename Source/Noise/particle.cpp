@@ -1,3 +1,4 @@
+#include "Utility/random.h"
 #include "dsp.h"
 #include "particle.h"
 #include <math.h>
@@ -26,7 +27,7 @@ void Particle::Init(float sample_rate)
 
 float Particle::Process()
 {
-    float u = rand() * kRandFrac;
+    float u = RandomInt() * kRandFrac;
     float s = 0.0f;
 
     if(u <= density_ || sync_)
@@ -38,7 +39,7 @@ float Particle::Process()
         {
             rand_phase_ = rand_phase_ >= 1.f ? rand_phase_ - 1.f : rand_phase_;
 
-            const float u = 2.0f * rand() * kRandFrac - 1.0f;
+            const float u = 2.0f * RandomInt() * kRandFrac - 1.0f;
             const float f
                 = fmin(powf(2.f, kRatioFrac * spread_ * u) * frequency_, .25f);
             pre_gain_ = 0.5f / sqrtf(resonance_ * f * sqrtf(density_));

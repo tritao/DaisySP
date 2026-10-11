@@ -12,6 +12,7 @@ void OscillatorBank::Init(float sample_rate)
     next_sample_ = 0.0f;
     segment_     = 0.0f;
 
+    gain_       = 0.f; // SetGain compares with the previous gain.
     frequency_  = 0.f;
     saw_8_gain_ = 0.0f;
     saw_4_gain_ = 0.0f;

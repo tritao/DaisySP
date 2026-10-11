@@ -54,7 +54,7 @@ class SmoothRandomGenerator
         {
             phase_ -= 1.0f;
             from_ += interval_;
-            interval_ = rand() * kRandFrac * 2.0f - 1.0f - from_;
+            interval_ = RandomInt() * kRandFrac * 2.0f - 1.0f - from_;
         }
         float t = phase_ * phase_ * (3.0f - 2.0f * phase_);
         return from_ + interval_ * t;

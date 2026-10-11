@@ -15,9 +15,9 @@ float Phasor::Process()
     float out;
     out = phs_ / TWOPI_F;
     phs_ += inc_;
-    if(phs_ > TWOPI_F)
+    if(phs_ >= TWOPI_F)
     {
-        phs_ -= TWOPI_F;
+        phs_ = fmodf(phs_, TWOPI_F);
     }
     if(phs_ < 0.0f)
     {

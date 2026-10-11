@@ -13,6 +13,7 @@ void FormantOscillator::Init(float sample_rate)
     carrier_frequency_ = 0.0f;
     formant_frequency_ = 100.f;
     phase_shift_       = 0.0f;
+    ps_inc_            = 0.0f;
 
     sample_rate_ = sample_rate;
 }

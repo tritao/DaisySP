@@ -37,17 +37,20 @@ class WhiteNoise
     */
     inline float Process()
     {
-        randseed_ *= 16807;
-        return (randseed_ * coeff_) * amp_;
+        randseed_ *= uint32_t{16807};
+        const int64_t signed_value = randseed_ < uint32_t{0x80000000}
+            ? static_cast<int64_t>(randseed_)
+            : static_cast<int64_t>(randseed_) - int64_t{0x100000000};
+        return (static_cast<float>(signed_value) * coeff_) * amp_;
     }
 
     /** sets the seed (and corrects a seed of 0 to 1) */
-    inline void SetSeed(int32_t s) { randseed_ = s == 0 ? 1 : s; }
+    inline void SetSeed(int32_t s) { randseed_ = s == 0 ? 1u : static_cast<uint32_t>(s); }
 
   private:
     static constexpr float coeff_ = 4.6566129e-010f;
     float                  amp_;
-    int32_t                randseed_;
+    uint32_t               randseed_;
 };
 } // namespace daisysp
 #endif

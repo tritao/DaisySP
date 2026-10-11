@@ -1,3 +1,4 @@
+#include "Utility/random.h"
 /*
 Copyright (c) 2020 Electrosmith, Corp, Emilie Gillet
 
@@ -189,7 +190,7 @@ class HiHat
         if(noise_clock_ >= 1.0f)
         {
             noise_clock_ -= 1.0f;
-            noise_sample_ = rand() * kRandFrac - 0.5f;
+            noise_sample_ = RandomInt() * kRandFrac - 0.5f;
         }
         out += noisiness_ * (noise_sample_ - out);
 
