@@ -10,6 +10,7 @@ void Svf::Init(float sample_rate)
     sr_        = sample_rate;
     fc_        = 200.0f;
     res_       = 0.5f;
+    resonance_damp_ = 2.0f * (1.0f - powf(res_, 0.25f));
     drive_     = 0.5f;
     pre_drive_ = 0.5f;
     freq_      = 0.25f;
@@ -64,7 +65,7 @@ void Svf::SetFreq(float f)
                    * MIN(0.25f,
                          fc_ / (sr_ * 2.0f))); // fs*2 because double sampled
     // recalculate damp
-    damp_ = MIN(2.0f * (1.0f - powf(res_, 0.25f)),
+    damp_ = MIN(resonance_damp_,
                 MIN(2.0f, 2.0f / freq_ - freq_ * 0.5f));
 }
 
@@ -72,8 +73,11 @@ void Svf::SetRes(float r)
 {
     float res = fclamp(r, 0.f, 1.f);
     res_      = res;
+    // Only resonance changes require the fourth root. Cutoff may be modulated
+    // on every audio sample, so keep its update free of this repeated power.
+    resonance_damp_ = 2.0f * (1.0f - powf(res_, 0.25f));
     // recalculate damp
-    damp_  = MIN(2.0f * (1.0f - powf(res_, 0.25f)),
+    damp_  = MIN(resonance_damp_,
                 MIN(2.0f, 2.0f / freq_ - freq_ * 0.5f));
     drive_ = pre_drive_ * res_;
 }
